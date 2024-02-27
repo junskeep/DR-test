@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Click Event Tracker</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Click Tracker</h1>
+    <button id="clickButton">Click Me!</button>
+    <ul id="clickList"></ul>
+
+    <script>
+        $(document).ready(function() {
+            $('#clickButton').on('click', function() {
+                $.post('/click', function(data) {
+                    $('#clickList').append('<li>Clicked at: ' + new Date().toLocaleString() + '</li>');
+                });
+            });
+
+            $.get('/clicks', function(data) {
+                data.forEach(function(click) {
+                    $('#clickList').append('<li>Clicked at: ' + new Date(click.clicked_at).toLocaleString() + '</li>');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
