@@ -35,7 +35,7 @@ resource "aws_instance" "backup_test_ec2" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.backup_test_sg.id]
   subnet_id              = aws_subnet.backup_test_vpc_subnet[0].id
-  depends_on = [aws_db_instance.backup_test_db]
+  depends_on             = [aws_db_instance.backup_test_db]
   user_data              = <<EOF
 #!/bin/bash
 # 우분투 시스템 업데이트 및 필요한 패키지 설치
@@ -54,11 +54,11 @@ cd ch_04/application/
 # Flask 애플리케이션 실행
 export FLASK_APP=app.py
 export FLASK_ENV=production
-export DB_USERNAME="${aws_db_instance.backup_test_db.username}"
-export DB_PASSWORD="${aws_db_instance.backup_test_db.password}"
-export DB_HOST="${aws_db_instance.backup_test_db.address}"
+export DB_USERNAME=${aws_db_instance.backup_test_db.username}
+export DB_PASSWORD=${var.DB_PASSWORD}
+export DB_HOST=${aws_db_instance.backup_test_db.address}
 export DB_PORT=3306
-export DB_SCHEMA=sys
+export DB_SCHEMA=${aws_db_instance.backup_test_db.db_name}
 flask run --host=0.0.0.0
 EOF
   tags = {
