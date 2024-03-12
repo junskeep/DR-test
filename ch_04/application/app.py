@@ -12,11 +12,6 @@ class ClickEvent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     clicked_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # 최초 실행시 테이블 생성
-    app.run(debug=True)
-
 @app.route('/')
 def index():
     return app.send_static_file('index.html')
@@ -35,3 +30,7 @@ def get_clicks():
     clicks = ClickEvent.query.all()
     return jsonify([{"id": click.id, "clicked_at": click.clicked_at.isoformat()} for click in clicks])
 
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # 최초 실행시 테이블 생성
+    app.run(debug=True)

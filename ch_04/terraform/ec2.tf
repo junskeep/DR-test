@@ -36,31 +36,32 @@ resource "aws_instance" "backup_test_ec2" {
   vpc_security_group_ids = [aws_security_group.backup_test_sg.id]
   subnet_id              = aws_subnet.backup_test_vpc_subnet[0].id
   depends_on             = [aws_db_instance.backup_test_db]
-  user_data              = <<EOF
+  user_data = <<-EOF
 #!/bin/bash
 # 우분투 시스템 업데이트 및 필요한 패키지 설치
 sudo apt-get update -y
 sudo apt-get install -y git python3-pip
-
 # Flask와 Gunicorn 설치
-pip3 install flask gunicorn flask_sqlalchemy pymysql
+sudo pip3 install flask gunicorn flask_sqlalchemy pymysql
 
 # Flask 애플리케이션을 위한 디렉토리 생성 및 GitHub에서 클론
-mkdir -p /var/www/flask_app
+sudo mkdir -p /var/www/flask_app
 cd /var/www/flask_app
-git clone https://github.com/junskeep/DR-test.git .
+sudo git clone https://github.com/junskeep/DR-test.git .
 cd ch_04/application/
-
-# Flask 애플리케이션 실행
+# Flask 애플리케이션 실행을 위한 환경 변수 설정
+DB_USERNAME=${aws_db_instance.backup_test_db.username}
+DB_PASSWORD="awsbackup133"
+DB_HOST=${aws_db_instance.backup_test_db.address}
+DB_PORT=3306
+DB_SCHEMA=${aws_db_instance.backup_test_db.db_name}
 export FLASK_APP=app.py
 export FLASK_ENV=production
-export DB_USERNAME=${aws_db_instance.backup_test_db.username}
-export DB_PASSWORD=${var.DB_PASSWORD}
-export DB_HOST=${aws_db_instance.backup_test_db.address}
-export DB_PORT=3306
-export DB_SCHEMA=${aws_db_instance.backup_test_db.db_name}
-flask run --host=0.0.0.0
+export DB_USERNAME DB_PASSWORD DB_HOST DB_PORT DB_SCHEMA
+# Gunicorn으로 Flask 애플리케이션 실행
+sudo flask run --host=0.0.0.0
 EOF
+
   tags = {
     name = "backup_test_ec2"
   }
