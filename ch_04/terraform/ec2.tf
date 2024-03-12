@@ -58,7 +58,8 @@ DB_SCHEMA=${aws_db_instance.backup_test_db.db_name}
 export FLASK_APP=app.py
 export FLASK_ENV=production
 export DB_USERNAME DB_PASSWORD DB_HOST DB_PORT DB_SCHEMA
-# Gunicorn으로 Flask 애플리케이션 실행
+echo $DB_USERNAME $DB_PASSWORD $DB_HOST $DB_PORT $DB_SCHEMA >> env.txt
+sudo python3 db.py
 sudo flask run --host=0.0.0.0
 EOF
 
