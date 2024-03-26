@@ -39,15 +39,15 @@ resource "aws_instance" "backup_test_ec2" {
   user_data = <<-EOF
 #!/bin/bash
 # 우분투 시스템 업데이트 및 필요한 패키지 설치
-sudo apt-get update -y
-sudo apt-get install -y git python3-pip
+apt-get update -y
+apt-get install -y git python3-pip
 # Flask와 Gunicorn 설치
-sudo pip3 install flask gunicorn flask_sqlalchemy pymysql
+pip3 install flask gunicorn flask_sqlalchemy pymysql
 
 # Flask 애플리케이션을 위한 디렉토리 생성 및 GitHub에서 클론
-sudo mkdir -p /var/www/flask_app
+mkdir -p /var/www/flask_app
 cd /var/www/flask_app
-sudo git clone https://github.com/junskeep/DR-test.git .
+git clone https://github.com/junskeep/DR-test.git .
 cd ch_04/application/
 # Flask 애플리케이션 실행을 위한 환경 변수 설정
 DB_USERNAME=${aws_db_instance.backup_test_db.username}
@@ -58,12 +58,17 @@ DB_SCHEMA=${aws_db_instance.backup_test_db.db_name}
 export FLASK_APP=app.py
 export FLASK_ENV=production
 export DB_USERNAME DB_PASSWORD DB_HOST DB_PORT DB_SCHEMA
+touch env.txt
 echo $DB_USERNAME $DB_PASSWORD $DB_HOST $DB_PORT $DB_SCHEMA >> env.txt
-sudo python3 db.py
-sudo flask run --host=0.0.0.0
+python3 db.py
+flask run --host=0.0.0.0
 EOF
 
   tags = {
     name = "backup_test_ec2"
   }
+}
+
+output "ec2_domain" {
+  value = aws_instance.backup_test_ec2.public_ip
 }
