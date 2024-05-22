@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: darwin-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: darwin
+  template:
+    metadata:
+      labels:
+        app: darwin
+    spec:
+      containers:
+      - name: darwin
+        image:  hello-world
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: darwin-service
+spec:
+  selector:
+    app: darwin
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: darwin-load-balancer
+spec:
+  selector:
+    app: darwin
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
